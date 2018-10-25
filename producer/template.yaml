@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: producer
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: ${OC_LABEL_APP_NAME}
+    name: ${OC_NAME}
+  spec:
+    replicas: 1
+    selector:
+      app: ${OC_LABEL_APP_NAME}
+      deploymentconfig: ${OC_NAME}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        labels:
+          app: ${OC_LABEL_APP_NAME}
+          deploymentconfig: ${OC_NAME}
+      spec:
+        containers:
+        - env:
+          - name: KAFKA_BOOTSTRAP_SERVERS_CONFIG
+            value: ${KAFKA_BOOTSTRAP_SERVERS_CONFIG}
+          - name: KAFKA_CLIENT_ID_CONFIG
+            value: ${KAFKA_CLIENT_ID_CONFIG}
+          - name: KAFKA_TOPICS
+            value: ${KAFKA_TOPICS}
+          - name: PRODUCER_PERSON_ID
+            value: "${PRODUCER_PERSON_ID}"
+          imagePullPolicy: Always
+          name: producer
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 8778
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - producer
+        from:
+          kind: ImageStreamTag
+          name: producer:latest
+          namespace: ${OC_NAMESPACE}
+      type: ImageChange
+parameters:
+- name: OC_NAMESPACE
+  displayName: oc namespace
+  description: oc namespace
+  value: timescale-demo
+  required: true
+- name: OC_NAME
+  displayName: name of the objects
+  description: value for the name property of the objects created by the template
+  value: producer
+  required: true
+- name: OC_LABEL_APP_NAME
+  displayName: app label to use
+  description: value for the "app" label
+  value: producer
+  required: true
+- name: KAFKA_BOOTSTRAP_SERVERS_CONFIG
+  displayName: kafka bootstrap servers
+  description: kafka bootstrap servers
+  value: cluster-for-readings-kafka-bootstrap:9092
+  required: true
+- name: KAFKA_CLIENT_ID_CONFIG
+  displayName: kafka client ID
+  description: kafka client ID
+  generate: expression
+  from: "[a-zA-Z0-9]{10}"
+  required: true
+- name: KAFKA_TOPICS
+  displayName: list of kafka topics
+  description: list of kafka topics
+  value: readings
+  required: true
+- name: PRODUCER_PERSON_ID
+  displayName: person id
+  description: person id
+  required: true

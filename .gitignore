@@ -1,0 +1,9 @@
+\.*
+!.gitignore
+
+*.iml
+
+tmp/
+target/
+out/
+build/
