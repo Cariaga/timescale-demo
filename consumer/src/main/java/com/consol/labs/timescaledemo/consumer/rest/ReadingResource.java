@@ -1,5 +1,6 @@
 package com.consol.labs.timescaledemo.consumer.rest;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -42,5 +43,18 @@ public class ReadingResource {
             return Collections.emptyList();
         }
         return dataManager.getAvgPulse(personId);
+    }
+
+    // does not work:
+    // combo EclipseLink + JDBC postgres driver
+    // cannot interface with functions having multiple OUT parameters
+    @Path("position")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<BigDecimal> getPosition(@QueryParam("personId") final Long personId) {
+        if (personId == null) {
+            return Collections.emptyList();
+        }
+        return dataManager.getPosition(personId);
     }
 }

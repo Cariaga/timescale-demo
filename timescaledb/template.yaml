@@ -157,7 +157,9 @@ objects:
 
       SELECT create_hypertable('t_reading', 'read_at');
 
-      -- JDBC postgres driver cannot interface with functions having multiple OUT parameters
+      -- does not work:
+      -- combo EclipseLink + JDBC postgres driver
+      -- cannot interface with functions having multiple OUT parameters
       CREATE OR REPLACE FUNCTION get_last_position(
         IN in_person_id BIGINT,
         OUT out_latitude NUMERIC(40,10),

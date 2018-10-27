@@ -1,5 +1,6 @@
 package com.consol.labs.timescaledemo.consumer.manager;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -69,5 +70,9 @@ public class ReadingsDataManager {
 
     public List<AvgPulse> getAvgPulse(final long personId) {
         return personDAO.getAvgPulse(personId);
+    }
+
+    public List<BigDecimal> getPosition(final long personId) {
+        return readingDAO.getPosition(personId);
     }
 }
